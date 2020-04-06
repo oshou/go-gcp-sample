@@ -1,6 +1,29 @@
 version: 2
 jobs:
-  build:
+  deploy_prd:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 18.06.0-ce
+      - run:
+          name: Setup Cloud SDK
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key -file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_NAME}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud --quiet auth configure-docker
+      - run:
+          name: Push docker image
+          command: |
+            docker build -t go-gcp-sample .
+            TAG=gcr.io/oshou-deployflow-project/go-gcp-sample:pushed-`date +%Y%m%d%H%M%S`
+            docker tag go-gcp-sample $TAG
+            LATEST_TAG=gcr.io/oshou-deployflow-project/go-gcp-sample:latest
+            docker tag go-gcp-sample $LATEST_TAG
+            docker push $LATEST_TAG
+  deploy_dev:
     docker:
       - image: circleci/golang:1.13
     working_directory: /go/src/github.com/oshou/go-gcp-sample
@@ -8,3 +31,16 @@ jobs:
       - checkout
       - run: go get -v -t -d ./...
       - run: go test -v ./...
+
+workflows:
+  version: 2
+  build_deploy:
+    jobs:
+      - deploy_prd:
+          filters:
+            branches:
+              only: develop
+      - deploy_dev:
+          filters:
+            branches:
+              only: develop
