@@ -41,7 +41,7 @@ workflows:
             branches:
               only:
                 - master
-                - feature/add_ci_config
+                - feature/add_circleci_config
       - deploy_dev:
           filters:
             branches:
