@@ -20,6 +20,7 @@ jobs:
             docker build -t go-gcp-sample .
             TAG=gcr.io/oshou-deployflow-project/go-gcp-sample:pushed-`date +%Y%m%d%H%M%S`
             docker tag go-gcp-sample $TAG
+            docker push $TAG
             LATEST_TAG=gcr.io/oshou-deployflow-project/go-gcp-sample:latest
             docker tag go-gcp-sample $LATEST_TAG
             docker push $LATEST_TAG
