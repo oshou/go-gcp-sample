@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Setup Cloud SDK
           command: |
-            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key -file=-
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
             gcloud --quiet config set project ${GOOGLE_PROJECT_NAME}
             gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
             gcloud --quiet auth configure-docker
@@ -39,7 +39,9 @@ workflows:
       - deploy_prd:
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - feature/add_ci_config
       - deploy_dev:
           filters:
             branches:
